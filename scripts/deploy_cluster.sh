@@ -20,7 +20,7 @@ K8S_SERVICE_PORT="6443"
 K3S_NODE_NAME="apollo"
 
 # Function to wait for a pod to be running before proceeding
-# `oc rollout` doesn't work well without sleeping and waiting before calling so let's just do this
+# `kubectl rollout` doesn't work well without sleeping and waiting before calling so let's just do this
 wait_for_pod () {
   # $1 = namespace
   # $2 = pod label name to check
