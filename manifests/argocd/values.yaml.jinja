@@ -1,0 +1,20 @@
+global:
+  domain: {{ argocd_server_fqdn }}
+# I cannot for the life of me get tls passthrough to work for this. Not sure if bug in API Gateway or ArgoCD pod.
+# So we tell ArgoCD to disable TLS and we terminate at the gateway and pass to service on 80
+configs:
+  params:
+    server.insecure: true
+  cm:
+    create: true
+    admin.enabled: false
+    dex.config: |
+      connectors:
+        - type: github
+          id: github
+          name: GitHub
+          config:
+            clientID: {{ github_client_id }}
+            clientSecret: {{ github_client_secret }}
+            orgs:
+              - name: {{ github_org_name }}

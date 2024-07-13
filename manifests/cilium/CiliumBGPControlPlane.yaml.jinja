@@ -1,0 +1,26 @@
+apiVersion: "cilium.io/v2alpha1"
+kind: CiliumBGPPeeringPolicy
+metadata:
+ name: bgp-peering-policy
+spec: 
+ nodeSelector:
+  matchLabels:
+    cilium-bgp: "enabled"
+ virtualRouters: 
+ - localASN: {{ local_asn }}
+   exportPodCIDR: false
+   serviceSelector:
+     matchExpressions:
+       - {key: somekey, operator: NotIn, values: ['never-used-value']}
+   neighbors:
+    - peerAddress: {{ peer_address_cider }}
+      peerASN: {{ peer_asn }}
+---
+apiVersion: "cilium.io/v2alpha1"
+kind: CiliumLoadBalancerIPPool
+metadata:
+  name: {{ bgp_policy }}
+spec:
+  blocks:
+  - start: {{ pool_block_start }}
+    stop: {{ pool_block_stop }}
