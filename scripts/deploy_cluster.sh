@@ -80,7 +80,7 @@ cilium install --version ${CILIUM_VERSION} \
     --set k8sServiceHost=${K8S_SERVICE_HOST} \
     --set k8sServicePort=${K8S_SERVICE_PORT}
 
-wait_for_pod kube-system app.kubernetes.io/name=cilium-agent
+wait_for_pod kube-system "app.kubernetes.io/name=cilium-agent"
 
 # Label our node for BGP policy advertisement
 kubectl label nodes ${K3S_NODE_NAME} cilium-bgp="enabled"
@@ -99,7 +99,7 @@ helm upgrade --install cert-manager jetstack/cert-manager \
     --set crds.enabled=true \
     --set "extraArgs={--enable-gateway-api}"
 
-wait_for_pod cert-manager app.kubernetes.io/name=cert-manager
+wait_for_pod cert-manager "app.kubernetes.io/name=cert-manager"
 
 # Create secret for AWS Route 53 access
 kubectl create secret generic route53-credentials -n cert-manager \
@@ -121,6 +121,6 @@ helm repo add argo https://argoproj.github.io/argo-helm --force-update
 # https://argo-cd.readthedocs.io/en/stable/operator-manual/user-management/#dex
 helm upgrade --install --namespace argocd --create-namespace argocd argo/argo-cd -f ./manifests/argocd/values.yaml
 
-wait_for_pod argocd app.kubernetes.io/name: argocd-server
+wait_for_pod argocd "app.kubernetes.io/name=argocd-server"
 
 kubectl -n argocd apply -f ./manifests/argocd/gateway.yaml
