@@ -3,11 +3,11 @@ Automation for deploying a single node k3s cluster (environemnt is a better word
 
 ### What it does
 Deploys single node k3 instance with Flannel CNI disabled, no network policy, no kube proxy, no traefik ingress, and no Klipper LB.
-<br>
+
 Instead we install Cilium CNI with API Gateway support and BGP Control Plane enabled. Your environment will need to support BGP.
-<br>
+
 cert-manager is also installed utilizing Lets Encrypt production and staging environments with AWS Route53 integration with DNS01 challenges. So you will need a Route53 account, or modify the scripts to use something different.
-<br>
+
 ArgoCD is installed and configured with TLS certificates from cert-manager with Gateway API TLS termination as I simply couldn't get the passthrough functionality to work right. ArgoCD is configured to disable admin auth and instead configured to use GitHub oauth. So you will need to setup a GitHub oauth in your GitHub account or configure a different provider.
 
 ### How to use
