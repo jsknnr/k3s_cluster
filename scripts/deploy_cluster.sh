@@ -91,8 +91,7 @@ kubectl label nodes ${K3S_NODE_NAME} cilium-bgp="enabled"
 kubectl apply -f ./manifests/cilium/CiliumBGPControlPlane.yaml
 
 # Install cert-manager
-# cert-manager will not auto create certs for tls passthrough gateways
-# I can't get passthrough to work worth a shit anyway
+helm repo add jetstack https://charts.jetstack.io --force-update
 helm upgrade --install cert-manager jetstack/cert-manager \
     --namespace cert-manager \
     --create-namespace \
@@ -116,8 +115,7 @@ kubectl -n cert-manager apply -f ./manifests/cert-manager/production_issuer.yaml
 # Render argocd manifests
 ./scripts/render_template.py -d ./manifests/argocd -c ./config/environment.yaml
 # Deploy ArgoCD
-helm repo add argo https://argoproj.github.io/argo-helm
-helm repo update
+helm repo add argo https://argoproj.github.io/argo-helm --force-update
 # ArgoCD configured for OAUTH via GitHub
 # Must setup OAUTH app for GH organization first
 # https://argo-cd.readthedocs.io/en/stable/operator-manual/user-management/#dex
