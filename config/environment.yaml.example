@@ -17,6 +17,7 @@ argocd_server_fqdn:
 github_client_id:
 github_client_secret:
 github_org_name:
+github_org_team_name:
 
 # demo app config
 demo_app_hostname:

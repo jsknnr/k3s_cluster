@@ -18,3 +18,6 @@ configs:
             clientSecret: {{ github_client_secret }}
             orgs:
               - name: {{ github_org_name }}
+  rbac: 
+     policy.csv: |
+       g, {{ github_org_name }}:{{ github_org_team_name }}, role:admin
