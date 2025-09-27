@@ -8,8 +8,8 @@
 # https://docs.cilium.io/en/stable/network/servicemesh/gateway-api/gateway-api/#prerequisites - Install Gateway API
 # https://argo-cd.readthedocs.io/en/stable/operator-manual/user-management/#dex - ArgoCD OAUTH with GitHub
 
-CILIUM_VERSION="1.15.7"
-CERT_MANAGER_VERSION="v1.15.1"
+CILIUM_VERSION="1.18.2"
+CERT_MANAGER_VERSION="v1.18.2"
 # Unless you modify the k3s install command and override this default, you shouldn't have to change this
 CLUSTER_POOL_CIDR="10.42.0.0/16"
 # IP or FQDN of K3 node
@@ -18,6 +18,11 @@ K8S_SERVICE_HOST="172.16.100.20"
 K8S_SERVICE_PORT="6443"
 # Hostname of K3 node
 K3S_NODE_NAME="apollo"
+
+# Function to generate a timestamp for logging
+timestamp() {
+  date +"%Y-%m-%dT%H:%M:%S"
+}
 
 # Function to wait for a pod to be running before proceeding
 # `kubectl rollout` doesn't work well without sleeping and waiting before calling so let's just do this
@@ -28,7 +33,7 @@ wait_for_pod () {
   count=0
   while true; do
     sleep 5
-    if oc get pod -n $1 -l $2 | awk '{print $3}' | grep -q 'Running'; then
+    if kubectl get pod -n $1 -l $2 | awk '{print $3}' | grep -q 'Running'; then
       sleep 5
       break
     fi
@@ -53,12 +58,12 @@ curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC='--flannel-backend=none --disabl
 export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
 
 # Install k8s Gateway API CRDs
-kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v1.0.0/config/crd/standard/gateway.networking.k8s.io_gatewayclasses.yaml
-kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v1.0.0/config/crd/standard/gateway.networking.k8s.io_gateways.yaml
-kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v1.0.0/config/crd/standard/gateway.networking.k8s.io_httproutes.yaml
-kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v1.0.0/config/crd/standard/gateway.networking.k8s.io_referencegrants.yaml
-kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v1.0.0/config/crd/experimental/gateway.networking.k8s.io_grpcroutes.yaml
-kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v1.0.0/config/crd/experimental/gateway.networking.k8s.io_tlsroutes.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v1.2.0/config/crd/standard/gateway.networking.k8s.io_gatewayclasses.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v1.2.0/config/crd/standard/gateway.networking.k8s.io_gateways.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v1.2.0/config/crd/standard/gateway.networking.k8s.io_httproutes.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v1.2.0/config/crd/standard/gateway.networking.k8s.io_referencegrants.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v1.2.0/config/crd/standard/gateway.networking.k8s.io_grpcroutes.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v1.2.0/config/crd/experimental/gateway.networking.k8s.io_tlsroutes.yaml
 
 # Install Cilium CLI
 CILIUM_CLI_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/cilium-cli/main/stable.txt)
@@ -103,8 +108,8 @@ wait_for_pod cert-manager "app.kubernetes.io/name=cert-manager"
 
 # Create secret for AWS Route 53 access
 kubectl create secret generic route53-credentials -n cert-manager \
-    --from-literal=aws_access_key_id=${AWS_ACCESS_KEY_ID} \ 
-    --from-literal=aws_secret_access_key=${AWS_SECRET_ACCESS_KEY}
+    --from-literal=aws_access_key_id="${AWS_ACCESS_KEY_ID}" \
+    --from-literal=aws_secret_access_key="${AWS_SECRET_ACCESS_KEY}"
 
 # Render cert-manager manifests
 ./scripts/render_template.py -d ./manifests/cert-manager -c ./config/environment.yaml

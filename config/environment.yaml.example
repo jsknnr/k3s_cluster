@@ -1,10 +1,8 @@
 # cilium config
-bgp_policy:
 local_asn:
-peer_address_cidr:
+peer_address:
 peer_asn:
-pool_block_start:
-pool_block_stop:
+pool_cidr:
 
 # cert-manager config
 email:

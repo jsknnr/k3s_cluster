@@ -1,26 +1,52 @@
-apiVersion: "cilium.io/v2alpha1"
-kind: CiliumBGPPeeringPolicy
+apiVersion: cilium.io/v2
+kind: CiliumBGPClusterConfig
 metadata:
- name: bgp-peering-policy
-spec: 
- nodeSelector:
-  matchLabels:
-    cilium-bgp: "enabled"
- virtualRouters: 
- - localASN: {{ local_asn }}
-   exportPodCIDR: false
-   serviceSelector:
-     matchExpressions:
-       - {key: somekey, operator: NotIn, values: ['never-used-value']}
-   neighbors:
-    - peerAddress: {{ peer_address_cider }}
+  name: cilium-bgp
+spec:
+  nodeSelector:
+    matchLabels:
+      cilium-bgp: "enabled"
+  bgpInstances:
+  - name: "instance-{{ local_asn }}"
+    localASN: {{ local_asn }}
+    peers:
+    - name: "peer-{{ peer_asn }}"
       peerASN: {{ peer_asn }}
+      peerAddress: {{ peer_address }}
+      peerConfigRef:
+        name: "cilium-peer"
 ---
-apiVersion: "cilium.io/v2alpha1"
+apiVersion: cilium.io/v2alpha1
+kind: CiliumBGPPeerConfig
+metadata:
+  name: cilium-peer
+spec:
+  gracefulRestart:
+    enabled: true
+    restartTimeSeconds: 15
+  families:
+    - afi: ipv4
+      safi: unicast
+  advertisements:
+    matchLabels:
+      advertise: "cilium-lb-pool"
+---
+apiVersion: cilium.io/v2alpha1
 kind: CiliumLoadBalancerIPPool
 metadata:
-  name: {{ bgp_policy }}
+  name: lb-pool
+  labels:
+    advertise: "cilium-lb-pool"
 spec:
   blocks:
-  - start: {{ pool_block_start }}
-    stop: {{ pool_block_stop }}
+    - cidr: {{ pool_cidr }}
+---
+apiVersion: cilium.io/v2alpha1
+kind: CiliumBGPAdvertisement
+metadata:
+  name: pool-advertisement
+  labels:
+    advertise: "cilium-lb-pool"
+spec:
+  advertisements:
+    - advertisementType: "LoadBalancerIPPool"
