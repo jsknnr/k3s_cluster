@@ -27,9 +27,9 @@ spec:
   families:
     - afi: ipv4
       safi: unicast
-  advertisements:
-    matchLabels:
-      advertise: "cilium-lb-pool"
+      advertisements:
+        matchLabels:
+          advertise: "cilium-lb-pool"
 ---
 apiVersion: cilium.io/v2
 kind: CiliumLoadBalancerIPPool
@@ -44,9 +44,16 @@ spec:
 apiVersion: cilium.io/v2
 kind: CiliumBGPAdvertisement
 metadata:
-  name: pool-advertisement
+  name: bgp-advertisements
   labels:
     advertise: "cilium-lb-pool"
 spec:
   advertisements:
-    - advertisementType: "LoadBalancerIPPool"
+    - advertisementType: "Service"
+      service:
+        addresses:
+          - LoadBalancerIP
+      selector:
+        matchExpressions:
+         - {key: somekey, operator: NotIn, values: ['never-used-value']}
+

@@ -17,7 +17,7 @@ K8S_SERVICE_HOST="172.16.100.20"
 # Port for API service on K3 node
 K8S_SERVICE_PORT="6443"
 # Hostname of K3 node
-K3S_NODE_NAME="apollo"
+K3S_NODE_NAME="ares"
 
 # Function to generate a timestamp for logging
 timestamp() {
